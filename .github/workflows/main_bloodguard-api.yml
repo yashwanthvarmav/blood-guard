@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Development'
+      name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
@@ -60,6 +60,6 @@ jobs:
         id: deploy-to-webapp
         with:
           app-name: 'bloodguard-api'
-          slot-name: 'Development'
+          slot-name: 'Production'
           package: .
           
