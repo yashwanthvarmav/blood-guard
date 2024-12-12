@@ -116,7 +116,6 @@ async function organizationLoginController(email, password, organization_pin) {
     }
 }
 
-
 async function getOrganizationsController(req, res) {
     try {
         const { id, organization_account_status, name, city, zip, state, limit = 10, offset = 0 } = req.query;
@@ -163,43 +162,6 @@ async function getOrganizationsController(req, res) {
         res.status(500).json({ error: error.message });
     }
 }
-
-// async function getOrganizationsByStatusController(req, res) {
-//     try {
-//         const { organization_account_status, limit = 10, offset = 0 } = req.query;
-//         const whereCondition = organization_account_status
-//             ? { organization_account_status }
-//             : {};
-
-//         const organizations = await models.Organization.findAndCountAll({
-//             where: whereCondition,
-//             limit: parseInt(limit),
-//             offset: parseInt(offset)
-//         });
-
-//         res.status(200).json({
-//             total: organizations.count,
-//             organizations: organizations.rows
-//         });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// }
-
-// async function getOrganizationByIdController(req, res) {
-//     try {
-//         const { id } = req.params;
-//         const organization = await models.Organization.findByPk(id);
-
-//         if (!organization) {
-//             return res.status(404).json({ error: 'Organization not found' });
-//         }
-
-//         res.status(200).json(organization);
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// }
 
 async function updateOrganizationStatusController(req, res) {
     try {
