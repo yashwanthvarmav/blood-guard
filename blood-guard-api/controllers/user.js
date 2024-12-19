@@ -59,64 +59,71 @@ async function registerUserController(data) {
     }
 }
 
-async function userLoginController(email, password, user_pin) {
-  try {
-      // Step 1: Find the user by email
-      const user = await models.User.findOne({ where: { email, deleted_at: null } });
-      if (!user) {
-          throw new Error('User with this email does not exist');
-      }
+async function userLoginController(email, password, pin, role) {
+    try {
+        // Step 1: Find the user by email
+        const user = await models.User.findOne({ where: { email, deleted_at: null } });
+        if (!user) {
+            throw new Error('User with this email does not exist');
+        }
 
-      // Step 2: Validate the password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-          throw new Error('Invalid password');
-      }
+        // Step 2: Validate the password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error('Invalid password');
+        }
 
-      // Step 3: Validate the PIN
-      if (parseInt(user.user_pin) !== parseInt(user_pin)) {
-          throw new Error('Invalid PIN');
-      }
+        // Step 3: Validate the PIN
+        if (parseInt(user.user_pin) !== parseInt(pin)) {
+            throw new Error('Invalid PIN');
+        }
 
-      // Step 4: Fetch the latest eligibility status
-      const eligibilityStatus = await models.EligibilityStatus.findOne({
-          where: { user_id: user.id, deleted_at: null },
-          order: [['created_at', 'DESC']]
-      });
+        // Step 4: Ensure user_role matches the expected value
+        if (role !== 'DONOR') {
+            throw new Error('Invalid user role');
+        }
 
-      let eligibilityInfo = { status: 'CheckEligibility' }; // Default response if no record is found
+        // Step 5: Fetch the latest eligibility status
+        const eligibilityStatus = await models.EligibilityStatus.findOne({
+            where: { user_id: user.id, deleted_at: null },
+            order: [['created_at', 'DESC']]
+        });
 
-      if (eligibilityStatus) {
-          eligibilityInfo.status = eligibilityStatus.eligibility;
+        let eligibilityInfo = { status: 'CheckEligibility' }; // Default response if no record is found
 
-          if (eligibilityStatus.eligibility === 'Temporary Disqualification') {
-              eligibilityInfo.next_eligibility_date = eligibilityStatus.next_eligibility_check;
-          }
-      }
+        if (eligibilityStatus) {
+            eligibilityInfo.status = eligibilityStatus.eligibility;
 
-      // Step 5: Generate JWT token
-      const token = jwt.sign(
-          { userId: user.id, email: user.email, role: user.role },
-          process.env.JWT_SECRET,
-          { expiresIn: '1h' }
-      );
+            if (eligibilityStatus.eligibility === 'Temporary Disqualification') {
+                eligibilityInfo.next_eligibility_date = eligibilityStatus.next_eligibility_check;
+            }
+        }
 
-      // Step 6: Return the response object
-      return {
-          message: 'Login successful',
-          token,
-          user: {
-              id: user.id,
-              email: user.email,
-              role: user.role,
-              eligibility: eligibilityInfo
-          }
-      };
-  } catch (error) {
-      console.error('Error in userLoginController:', error.message);
-      throw error; // Propagate the error back to the route
-  }
+        // Step 6: Generate JWT token
+        const token = jwt.sign(
+            { userId: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        // Step 7: Return the response object
+        return {
+            message: 'Login successful',
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                user_role,
+                eligibility: eligibilityInfo
+            }
+        };
+    } catch (error) {
+        console.error('Error in userLoginController:', error.message);
+        throw error; // Propagate the error back to the route
+    }
 }
+
 
 module.exports = {
     registerUserController,

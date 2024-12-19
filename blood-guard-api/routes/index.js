@@ -9,6 +9,10 @@ const donationCenterRoutes = require('./donationcenters');
 const donationCampRoutes = require('./donationcamps');
 const donorRoutes = require('./donors');
 const donationRoutes = require('./donations');
+const adminRoutes = require('./admin');
+const contactRoutes = require('./contact');
+const supportRoutes = require('./support');
+
 
 
 // User routes
@@ -19,11 +23,7 @@ router.post('/login-user', loginUserRoute);
 router.post('/register-organization', registerOrganizationRoute);
 router.post('/login-organization', organizationLoginRoute)
 router.get('/organizations', getOrganizationsController);
-
-
-//router.get('/organizations', getOrganizationsByStatusController); // API-1: Get organizations by status
-//router.get('/organization/:id', getOrganizationByIdController);   // API-2: Get organization by ID
-router.put('/organization/:id', updateOrganizationStatusController); // API-3: Update organization status and remarks
+router.put('/organization/:id', updateOrganizationStatusController);
 
 // Question routes
 router.use('/questions', getQuestionsController);
@@ -43,5 +43,13 @@ router.use('/donors', donorRoutes);
 // Donation routes
 router.use('/donations', donationRoutes);
 
+// Admin routes
+router.use('/admin', adminRoutes);
+
+// Contact routes
+router.use('/contact', contactRoutes);
+
+// Support routes
+router.use('/support', supportRoutes);
 
 module.exports = router;

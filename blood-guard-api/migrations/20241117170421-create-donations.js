@@ -50,6 +50,10 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
+      blood_group: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       user_action: {
         type: Sequelize.STRING,
         allowNull: false,

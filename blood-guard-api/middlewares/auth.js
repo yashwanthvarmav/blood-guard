@@ -16,23 +16,29 @@ async function validateToken(req, res, next) {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Determine if it's a user or organization based on token payload
-        const { userId, organizationId } = decoded;
+        // Extract identifiers from token
+        const { userId, organizationId, adminId, role } = decoded;
 
-        if (userId) {
+        if (userId && role === 'DONOR') {
             const user = await models.User.findByPk(userId);
             if (!user || user.deleted_at) {
                 return res.status(401).json({ error: 'Invalid or expired token for user' });
             }
             req.user = user; // Attach user to the request for later use
-        } else if (organizationId) {
+        } else if (organizationId && role === 'ORGANIZATION') {
             const organization = await models.Organization.findByPk(organizationId);
             if (!organization || organization.deleted_at) {
                 return res.status(401).json({ error: 'Invalid or expired token for organization' });
             }
             req.organization = organization; // Attach organization to the request for later use
+        } else if (adminId && role === 'ADMIN') {
+            const admin = await models.Admin.findByPk(adminId);
+            if (!admin || admin.deleted_at) {
+                return res.status(401).json({ error: 'Invalid or expired token for admin' });
+            }
+            req.admin = admin; // Attach admin to the request for later use
         } else {
-            return res.status(401).json({ error: 'Invalid token payload' });
+            return res.status(401).json({ error: 'Invalid token payload or role' });
         }
 
         next(); // Pass control to the next middleware or route handler

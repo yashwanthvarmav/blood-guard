@@ -5,6 +5,8 @@ const {
   addDonation,
   updateDonation,
   deleteDonation,
+  getBloodStock, 
+  getDonationHistory
 } = require('../controllers/donations');
 
 // API-1: Get donations with filters
@@ -18,5 +20,11 @@ router.put('/update/:id', updateDonation);
 
 // API-4: Soft delete a donation record
 router.delete('/remove/:id', deleteDonation);
+
+
+router.get('/blood-stock', getBloodStock);
+
+
+router.get('/history/:user_id', getDonationHistory);
 
 module.exports = router;

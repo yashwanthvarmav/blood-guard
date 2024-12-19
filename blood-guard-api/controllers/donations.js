@@ -8,6 +8,7 @@ async function getDonations(req, res) {
     donation_center_id,
     donation_camp_id,
     user_id,
+    blood_group,
     user_action,
     blood_donation_status,
     blood_donated_date,
@@ -30,6 +31,9 @@ async function getDonations(req, res) {
     }
     if (user_id) {
       whereCondition.user_id = user_id;
+    }
+    if (blood_group) {
+      whereCondition.blood_group = blood_group;
     }
     if (user_action) {
       whereCondition.user_action = user_action;
@@ -63,6 +67,7 @@ async function addDonation(req, res) {
     organization_id,
     donation_center_id,
     donation_camp_id,
+    blood_group,
     user_action,
     blood_donation_status,
   } = req.body;
@@ -80,11 +85,18 @@ async function addDonation(req, res) {
       });
     }
 
+    if (!blood_group) {
+      return res.status(400).json({
+        error: 'Blood Group must be provided',
+      });
+    }
+
     const newDonation = await models.Donation.create({
       user_id,
       organization_id,
       donation_center_id,
       donation_camp_id,
+      blood_group,
       user_action,
       blood_donation_status,
       created_at: new Date(),
@@ -111,13 +123,6 @@ async function updateDonation(req, res) {
     if (!donation) {
       return res.status(404).json({ error: 'Donation record not found' });
     }
-
-    // const updatedDonation = await donation.update({
-    //   user_action: user_action || donation.user_action,
-    //   blood_donation_status: blood_donation_status || donation.blood_donation_status,
-    //   blood_donated_date: blood_donated_date || donation.blood_donated_date,
-    //   updated_at: new Date(),
-    // });
 
     const updatedDonation = await donation.update({
       user_action: user_action || donation.user_action,
@@ -207,9 +212,83 @@ async function deleteDonation(req, res) {
   }
 }
 
+async function getBloodStock(req, res) {
+  try {
+    const {
+      organization_id,
+      donation_camp_id,
+      donation_center_id,
+      limit = 10,
+      offset = 0,
+    } = req.query;
+
+    // Build filter condition
+    const whereCondition = { blood_donation_status: 'Completed' };
+    if (organization_id) whereCondition.organization_id = organization_id;
+    if (donation_camp_id) whereCondition.donation_camp_id = donation_camp_id;
+    if (donation_center_id) whereCondition.donation_center_id = donation_center_id;
+
+    // Query for blood group counts
+    const bloodStock = await models.Donation.findAndCountAll({
+      attributes: [
+        'blood_group',
+        [models.sequelize.fn('COUNT', models.sequelize.col('blood_group')), 'count'],
+      ],
+      where: whereCondition,
+      group: ['blood_group'],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
+
+    res.status(200).json({
+      total: bloodStock.count.length,
+      data: bloodStock.rows,
+    });
+  } catch (error) {
+    console.error('Error fetching blood stock:', error.message);
+    res.status(500).json({ error: 'An error occurred while fetching blood stock data.' });
+  }
+}
+
+
+async function getDonationHistory(req, res) {
+  try {
+    const { user_id } = req.params;
+    const { limit = 10, offset = 0 } = req.query;
+
+    // Validate user existence
+    const userExists = await models.User.findByPk(user_id);
+    if (!userExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Query for donation history
+    const donationHistory = await models.Donation.findAndCountAll({
+      where: { user_id },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      include: [
+        { model: models.Organization, attributes: ['organization_name'] },
+        { model: models.DonationCenter, attributes: ['name'] },
+        { model: models.DonationCamp, attributes: ['name'] },
+      ],
+    });
+
+    res.status(200).json({
+      total: donationHistory.count,
+      history: donationHistory.rows,
+    });
+  } catch (error) {
+    console.error('Error fetching donation history:', error.message);
+    res.status(500).json({ error: 'An error occurred while fetching donation history.' });
+  }
+}
+
 module.exports = {
   getDonations,
   addDonation,
   updateDonation,
   deleteDonation,
+  getBloodStock,
+  getDonationHistory
 };

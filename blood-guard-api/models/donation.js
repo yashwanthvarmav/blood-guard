@@ -61,6 +61,10 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id',
         },
       },
+      blood_group: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       user_action: {
         type: DataTypes.STRING,
         allowNull: false,

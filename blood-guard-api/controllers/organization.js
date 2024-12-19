@@ -74,7 +74,7 @@ async function registerOrganizationController(data) {
     }
 }
 
-async function organizationLoginController(email, password, organization_pin) {
+async function organizationLoginController(email, password, pin, role) {
     try {
         // Step 1: Find the organization by email
         const organization = await models.Organization.findOne({ where: { organization_email: email, deleted_at: null } });
@@ -89,25 +89,30 @@ async function organizationLoginController(email, password, organization_pin) {
         }
 
         // Step 3: Validate the PIN
-        if (parseInt(organization.organization_pin) !== parseInt(organization_pin)) {
+        if (parseInt(organization.organization_pin) !== parseInt(pin)) {
             throw new Error('Invalid PIN');
         }
 
-        // Step 4: Generate JWT token
+        // Step 4: Validate the role
+        if (role !== 'ORGANIZATION') {
+            throw new Error('Invalid role');
+        }
+
+        // Step 5: Generate JWT token
         const token = jwt.sign(
-            { organizationId: organization.id, email: organization.organization_email, role: organization.role },
+            { organizationId: organization.id, email: organization.organization_email, role },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '24h' }
         );
 
-        // Step 5: Return response object
+        // Step 6: Return response object
         return {
             message: 'Login successful',
             token,
             organization: {
                 id: organization.id,
                 email: organization.organization_email,
-                role: organization.role
+                role
             }
         };
     } catch (error) {

@@ -30,7 +30,8 @@ const organizationSchema = Joi.object({
 const organizationLoginSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    organization_pin: Joi.number().integer().required()
+    pin: Joi.number().integer().required(),
+    role: Joi.string().valid('ORGANIZATION').required() // Add role validation
 });
 
 async function registerOrganizationRoute(req, res) {
@@ -57,10 +58,10 @@ async function organizationLoginRoute(req, res) {
         }
 
         // Extract request body
-        const { email, password, organization_pin } = req.body;
+        const { email, password, pin, role } = req.body;
 
         // Call the controller and pass the extracted data
-        const result = await organizationLoginController(email, password, organization_pin);
+        const result = await organizationLoginController(email, password, pin, role);
 
         // Send success response
         res.status(200).json(result);
@@ -69,8 +70,6 @@ async function organizationLoginRoute(req, res) {
         res.status(500).json({ error: error.message });
     }
 }
-
-
 
 module.exports = exports = {
     registerOrganizationRoute,

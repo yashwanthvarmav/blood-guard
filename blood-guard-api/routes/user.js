@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const { registerUserController, userLoginController  } = require('../controllers/user');
 const Joi = require('joi');
 
@@ -36,8 +35,10 @@ const registerSchema = Joi.object({
 const loginSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    user_pin: Joi.number().integer().required()
+    pin: Joi.number().integer().required(),
+    role: Joi.string().valid('DONOR').required() // Validate user_role as DONOR
 });
+
 
 async function registerUserRoute(req, res) {
     try {
@@ -63,11 +64,11 @@ async function loginUserRoute(req, res) {
             return res.status(400).json({ error: error.details[0].message });
         }
 
-        // Extract request body data
-        const { email, password, user_pin } = req.body;
+        // Extract request body data, including user_role
+        const { email, password, pin, role } = req.body;
 
-        // Call the controller and pass the extracted data
-        const result = await userLoginController(email, password, user_pin);
+        // Pass the extracted data to the controller
+        const result = await userLoginController(email, password, pin, role);
 
         // Send success response
         res.status(200).json(result);
