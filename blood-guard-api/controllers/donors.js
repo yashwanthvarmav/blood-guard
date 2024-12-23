@@ -63,7 +63,6 @@ async function getEligibleDonorsController(req, res) {
   }
 }
 
-
 async function requestBloodDonationController(req, res) {
     const { user_id, organization_id } = req.body;
   

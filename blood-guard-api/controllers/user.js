@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const logger = require('../helpers/logger');
-const { sendWelcomeEmail } = require('../helpers/mailservice'); // Import the email helper
+const { sendWelcomeEmail, sendUserRecoverPinEmail } = require('../helpers/mailservice'); // Import the email helper
 const crypto = require('crypto');
 
 async function registerUserController(data) {
@@ -114,7 +114,6 @@ async function userLoginController(email, password, pin, role) {
                 id: user.id,
                 email: user.email,
                 role: user.role,
-                user_role,
                 eligibility: eligibilityInfo
             }
         };
@@ -124,8 +123,105 @@ async function userLoginController(email, password, pin, role) {
     }
 }
 
+async function recoverPasswordController(email, user_pin, new_password, role) {
+    try {
+        // Step 1: Find the user by email
+        const user = await models.User.findOne({ where: { email, deleted_at: null } });
+        if (!user) {
+            throw new Error('User with this email does not exist');
+        }
+
+        // Step 2: Validate user PIN and role
+        if (parseInt(user.user_pin) !== parseInt(user_pin)) {
+            throw new Error('Invalid PIN');
+        }
+        if (role !== 'DONOR') {
+            throw new Error('Invalid user role');
+        }
+
+        // Step 3: Hash the new password
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        // Step 4: Update the password in DB
+        await user.update({ password: hashedPassword, updated_at: new Date() });
+
+        return { message: 'Password updated successfully' };
+    } catch (error) {
+        console.error('Error in recoverPasswordController:', error.message);
+        throw error;
+    }
+}
+
+async function recoverPinController(email, password, role) {
+    try {
+        // Step 1: Find the user by email
+        const user = await models.User.findOne({ where: { email, deleted_at: null } });
+        if (!user) {
+            throw new Error('User with this email does not exist');
+        }
+
+        // Step 2: Validate the password and role
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error('Invalid password');
+        }
+        if (role !== 'DONOR') {
+            throw new Error('Invalid user role');
+        }
+
+        // Step 3: Generate a new PIN
+        const newPin = crypto.randomInt(100000, 999999);
+
+        // Step 4: Update the PIN in DB
+        await user.update({ user_pin: newPin, updated_at: new Date() });
+
+        // Step 5: Send an email with the new PIN
+        await sendUserRecoverPinEmail(user.email, newPin);
+
+        return { message: 'PIN updated and sent to your email' };
+    } catch (error) {
+        console.error('Error in recoverPinController:', error.message);
+        throw error;
+    }
+}
+
+async function updateUserProfileController(userId, updates) {
+    try {
+        // Step 1: Find the user by ID
+        const user = await models.User.findByPk(userId);
+        if (!user || user.deleted_at) {
+            throw new Error('User not found');
+        }
+
+        // Step 2: Prevent updating restricted fields
+        const restrictedFields = [
+            'email', 'user_pin', 'blood_group', 'role', 'user_account_status',
+        ];
+        restrictedFields.forEach(field => {
+            if (updates[field]) {
+                throw new Error(`Field "${field}" cannot be updated`);
+            }
+        });
+
+        // Step 3: Encrypt password if it's being updated
+        if (updates.password) {
+            updates.password = await bcrypt.hash(updates.password, 10);
+        }
+
+        // Step 4: Update user data
+        await user.update({ ...updates, updated_at: new Date() });
+
+        return { message: 'Profile updated successfully' };
+    } catch (error) {
+        console.error('Error in updateUserProfileController:', error.message);
+        throw error;
+    }
+}
 
 module.exports = {
     registerUserController,
-    userLoginController
+    userLoginController,
+    recoverPasswordController,
+    recoverPinController,
+    updateUserProfileController
 };

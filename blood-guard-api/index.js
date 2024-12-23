@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 app.get('/', (req, res) => {
-    res.send(`Hello Blood Guard API SERVICE ${process.env.DB_USER}`);
+    res.send('Hello Blood Guard API SERVICE');
 })
 
 app.use('/api', routeHandler)

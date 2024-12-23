@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const { Op } = require('sequelize');
 const models = require('../models');
+const { sendSupportRequestCreationEmail, sendSupportRequestUpdateEmail } = require('../helpers/mailservice');
 
 const createSupportSchema = Joi.object({
     support_name: Joi.string().required(),
@@ -12,6 +13,7 @@ const createSupportSchema = Joi.object({
 });
 
 const updateSupportSchema = Joi.object({
+    support_email: Joi.string().email().required(),
     support_status: Joi.string().valid('Pending', 'In Progress', 'Resolved', 'Closed').required(),
     support_remarks: Joi.string().optional(),
 });
@@ -26,6 +28,8 @@ async function createSupport(req, res) {
 
         // Create the support record
         const support = await models.Support.create(req.body);
+
+        await sendSupportRequestCreationEmail(req.body);
 
         res.status(201).json({ message: 'Support ticket created successfully', support });
     } catch (err) {
@@ -92,14 +96,21 @@ async function updateSupport(req, res) {
         }
 
         // Update the support ticket
-        await support.update(req.body);
+        const updateSupport = await support.update({...req.body, updated_at: new Date() });
 
-        res.status(200).json({ message: 'Support ticket updated successfully', support });
+        const { support_email, support_status, support_remarks } = req.body;
+
+        await sendSupportRequestUpdateEmail(support_email, support_status, support_remarks);
+
+        res.status(200).json({ message: 'Support ticket updated successfully', updateSupport });
     } catch (err) {
         console.error('Error updating support ticket:', err.message);
         res.status(500).json({ error: 'An error occurred while updating the support ticket' });
     }
 }
 
-
-module.exports = { createSupport, listSupport, updateSupport };
+module.exports = { 
+    createSupport, 
+    listSupport, 
+    updateSupport 
+};

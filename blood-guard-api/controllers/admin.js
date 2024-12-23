@@ -1,9 +1,6 @@
 const models = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-// const logger = require('../helpers/logger');
-// const { sendAdminNotificationEmail, sendOrganizationActivatedEmail, sendOrganizationPendingEmail } = require('../helpers/mailservice'); // Email helper
-// const crypto = require('crypto');
 
 async function adminLoginController(email, password, pin, role) {
     try {
@@ -51,3 +48,7 @@ async function adminLoginController(email, password, pin, role) {
         throw error; // Propagate the error back to the route
     }
 }
+
+module.exports = {
+    adminLoginController,
+  };

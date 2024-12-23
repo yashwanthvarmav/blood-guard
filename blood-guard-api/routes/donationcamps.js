@@ -7,6 +7,7 @@ const {
   removeDonationCamp
 } = require('../controllers/donationcamps');
 const Joi = require('joi');
+const { validateToken } = require('../middlewares/auth');
 
 // Joi validation for adding and updating a donation camp
 const donationCampSchema = Joi.object({
@@ -29,7 +30,7 @@ const donationCampSchema = Joi.object({
 });
 
 // Add Blood Donation Camp
-router.post('/add', async (req, res, next) => {
+router.post('/add', validateToken, async (req, res, next) => {
   try {
     const { error } = donationCampSchema.validate(req.body);
     if (error) {
@@ -51,7 +52,7 @@ router.get('/list', async (req, res, next) => {
 });
 
 // Update Blood Donation Camp
-router.put('/update/:id', async (req, res, next) => {
+router.put('/update/:id', validateToken, async (req, res, next) => {
   try {
     await updateDonationCamp(req, res);
   } catch (err) {
@@ -60,7 +61,7 @@ router.put('/update/:id', async (req, res, next) => {
 });
 
 // Remove Blood Donation Camp
-router.delete('/remove/:id', async (req, res, next) => {
+router.delete('/remove/:id', validateToken, async (req, res, next) => {
   try {
     await removeDonationCamp(req, res);
   } catch (err) {

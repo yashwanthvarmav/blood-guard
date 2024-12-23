@@ -1,9 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const { registerOrganizationController, organizationLoginController  } = require('../controllers/organization');
 const Joi = require('joi');
+const { registerOrganizationController, organizationLoginController, recoverOrganizationPasswordController, recoverOrganizationPinController, updateOrganizationProfileController  } = require('../controllers/organization');
 
-// Define the Joi validation schema
 const organizationSchema = Joi.object({
     organization_code: Joi.string().required(),
     organization_license_number: Joi.string().required(),
@@ -31,7 +28,20 @@ const organizationLoginSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     pin: Joi.number().integer().required(),
-    role: Joi.string().valid('ORGANIZATION').required() // Add role validation
+    role: Joi.string().valid('ORGANIZATION').required()
+});
+
+const recoverOrganizationPasswordSchema = Joi.object({
+    email: Joi.string().email().required(),
+    new_password: Joi.string().required(),
+    organization_pin: Joi.number().integer().required(),
+    role: Joi.string().valid('ORGANIZATION').required()
+});
+
+const recoverOrganizationPinSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    role: Joi.string().valid('ORGANIZATION').required()
 });
 
 async function registerOrganizationRoute(req, res) {
@@ -57,22 +67,69 @@ async function organizationLoginRoute(req, res) {
             return res.status(400).json({ error: error.details[0].message });
         }
 
-        // Extract request body
         const { email, password, pin, role } = req.body;
 
-        // Call the controller and pass the extracted data
         const result = await organizationLoginController(email, password, pin, role);
 
-        // Send success response
         res.status(200).json(result);
     } catch (error) {
         console.error('Error in organizationLoginRoute:', error.message);
         res.status(500).json({ error: error.message });
     }
-}
+};
+
+async function recoverOrganizationPasswordRoute(req, res) {
+    try {
+
+        const { error } = recoverOrganizationPasswordSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+
+        const { email, organization_pin, new_password, role } = req.body;
+
+        const result = await recoverOrganizationPasswordController(email, organization_pin, new_password, role);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Recover PIN
+async function recoverOrganizationPinRoute(req, res) {
+    
+    try {
+        const { error } = recoverOrganizationPinSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+
+        const { email, password, role } = req.body;
+
+        const result = await recoverOrganizationPinController(email, password, role);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Update Organization Profile
+async function updateOrganizationProfileRoute(req, res) {
+    try {
+        const { organizationId, ...updates } = req.body;
+
+        const result = await updateOrganizationProfileController(organizationId, updates);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
 
 module.exports = exports = {
     registerOrganizationRoute,
-    organizationLoginRoute
+    organizationLoginRoute,
+    recoverOrganizationPasswordRoute,
+    recoverOrganizationPinRoute,
+    updateOrganizationProfileRoute
 };
 

@@ -1,8 +1,6 @@
-const express = require('express');
-const { registerUserController, userLoginController  } = require('../controllers/user');
 const Joi = require('joi');
+const { registerUserController, userLoginController, recoverPasswordController, recoverPinController, updateUserProfileController} = require('../controllers/user');
 
-// Define the Joi validation schema
 const registerSchema = Joi.object({
     first_name: Joi.string().required(),
     last_name: Joi.string().required(),
@@ -31,24 +29,33 @@ const registerSchema = Joi.object({
     user_notifications: Joi.string().required()
 });
 
-// Define the Joi validation schema for user login
 const loginSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     pin: Joi.number().integer().required(),
-    role: Joi.string().valid('DONOR').required() // Validate user_role as DONOR
+    role: Joi.string().valid('DONOR').required()
 });
 
+const recoverPasswordSchema = Joi.object({
+    email: Joi.string().email().required(),
+    new_password: Joi.string().required(),
+    user_pin: Joi.number().integer().required(),
+    role: Joi.string().valid('DONOR').required()
+});
+
+const recoverPinSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    role: Joi.string().valid('DONOR').required()
+});
 
 async function registerUserRoute(req, res) {
     try {
-        // Validate request data
         const { error } = registerSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ error: error.details[0].message });
         }
 
-        // Register the user
         const result = await registerUserController(req.body);
         res.status(201).json(result);
     } catch (error) {
@@ -56,7 +63,6 @@ async function registerUserRoute(req, res) {
     }
 };
 
-// User Login Route
 async function loginUserRoute(req, res) {
     try {
         const { error } = loginSchema.validate(req.body);
@@ -64,13 +70,10 @@ async function loginUserRoute(req, res) {
             return res.status(400).json({ error: error.details[0].message });
         }
 
-        // Extract request body data, including user_role
         const { email, password, pin, role } = req.body;
 
-        // Pass the extracted data to the controller
         const result = await userLoginController(email, password, pin, role);
 
-        // Send success response
         res.status(200).json(result);
     } catch (error) {
         console.error('Error in loginUserRoute:', error.message);
@@ -78,7 +81,56 @@ async function loginUserRoute(req, res) {
     }
 }
 
+async function recoverPasswordRoute(req, res) {
+    
+    try {
+        const { error } = recoverPasswordSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+
+        const { email, user_pin, new_password, role } = req.body;
+
+        const result = await recoverPasswordController(email, user_pin, new_password, role);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
+async function recoverPinRoute(req, res) {
+    
+    try {
+
+        const { error } = recoverPinSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+
+        const { email, password, role } = req.body;
+
+        const result = await recoverPinController(email, password, role);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
+async function updateUserProfileRoute(req, res) {
+    try {
+        const { userId, ...updates } = req.body;
+
+        const result = await updateUserProfileController(userId, updates);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 module.exports = exports = {
     registerUserRoute,
-    loginUserRoute
+    loginUserRoute,
+    recoverPasswordRoute,
+    recoverPinRoute,
+    updateUserProfileRoute
 };

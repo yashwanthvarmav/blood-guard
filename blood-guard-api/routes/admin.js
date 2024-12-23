@@ -1,6 +1,5 @@
-const express = require('express');
-const { adminLoginController  } = require('../controllers/admin');
 const Joi = require('joi');
+const { adminLoginController  } = require('../controllers/admin');
 
 const adminLoginSchema = Joi.object({
     email: Joi.string().email().required(),

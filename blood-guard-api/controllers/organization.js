@@ -2,10 +2,10 @@ const models = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const logger = require('../helpers/logger');
-const { sendAdminNotificationEmail, sendOrganizationActivatedEmail, sendOrganizationPendingEmail } = require('../helpers/mailservice'); // Email helper
+const { sendAdminNotificationEmail, sendOrganizationActivatedEmail, sendOrganizationPendingEmail, sendOrganizationNewPinEmail, sendNewOrganizationRegisterEmail } = require('../helpers/mailservice'); // Email helper
 const crypto = require('crypto');
 
-const ADMIN_EMAIL = 'bloodguardinfo@gmail.com'; // Hardcoded admin email
+const ADMIN_EMAIL = 'bldgrddmn@gmail.com';
 
 async function registerOrganizationController(data) {
     try {
@@ -65,6 +65,8 @@ async function registerOrganizationController(data) {
 
         // Send email notification to admin
         await sendAdminNotificationEmail(ADMIN_EMAIL, newOrganization);
+
+        await sendNewOrganizationRegisterEmail(data.organization_email, newOrganization);
 
         logger.info('Organization registered successfully');
         return { message: 'Organization registered successfully', organization: { email: newOrganization.organization_email } };
@@ -196,10 +198,112 @@ async function updateOrganizationStatusController(req, res) {
     }
 }
 
+async function recoverOrganizationPasswordController(email, organization_pin, new_password, role) {
+    try {
+        // Validate role
+        if (role !== 'ORGANIZATION') {
+            throw new Error('Invalid role');
+        }
+
+        // Step 1: Find the organization by email
+        const organization = await models.Organization.findOne({ where: { organization_email: email, deleted_at: null } });
+        if (!organization) {
+            throw new Error('Organization with this email does not exist');
+        }
+
+        // Step 2: Validate PIN
+        if (parseInt(organization.organization_pin) !== parseInt(organization_pin)) {
+            throw new Error('Invalid PIN');
+        }
+
+        // Step 3: Encrypt the new password
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        // Step 4: Update the password
+        await organization.update({ password: hashedPassword, updated_at: new Date() });
+
+        return { message: 'Password updated successfully' };
+    } catch (error) {
+        console.error('Error in recoverOrganizationPasswordController:', error.message);
+        throw error;
+    }
+}
+
+async function recoverOrganizationPinController(email, password, role) {
+    try {
+        // Validate role
+        if (role !== 'ORGANIZATION') {
+            throw new Error('Invalid role');
+        }
+
+        // Step 1: Find the organization by email
+        const organization = await models.Organization.findOne({ where: { organization_email: email, deleted_at: null } });
+        if (!organization) {
+            throw new Error('Organization with this email does not exist');
+        }
+
+        // Step 2: Validate password
+        const isPasswordValid = await bcrypt.compare(password, organization.password);
+        if (!isPasswordValid) {
+            throw new Error('Invalid password');
+        }
+
+        // Step 3: Generate a new PIN
+        const newPin = crypto.randomInt(100000, 999999);
+
+        // Step 4: Update the PIN
+        await organization.update({ organization_pin: newPin, updated_at: new Date() });
+
+        // Step 5: Send email with the new PIN
+        await sendOrganizationNewPinEmail(organization.organization_email, newPin);
+
+        return { message: 'PIN updated and sent to the registered email' };
+    } catch (error) {
+        console.error('Error in recoverOrganizationPinController:', error.message);
+        throw error;
+    }
+}
+
+async function updateOrganizationProfileController(organizationId, updates) {
+    try {
+        // Step 1: Find the organization by ID
+        const organization = await models.Organization.findByPk(organizationId);
+        if (!organization || organization.deleted_at) {
+            throw new Error('Organization not found');
+        }
+
+        // Step 2: Restricted fields
+        const restrictedFields = [
+            'organization_email', 'organization_pin', 'role', 'organization_account_status',
+            'organization_license_number', 'organization_code'
+        ];
+        restrictedFields.forEach(field => {
+            if (updates[field]) {
+                throw new Error(`Field "${field}" cannot be updated`);
+            }
+        });
+
+        // Step 3: Encrypt password if updating
+        if (updates.password) {
+            updates.password = await bcrypt.hash(updates.password, 10);
+        }
+
+        // Step 4: Update the organization details
+        await organization.update({ ...updates, updated_at: new Date() });
+
+        return { message: 'Profile updated successfully' };
+    } catch (error) {
+        console.error('Error in updateOrganizationProfileController:', error.message);
+        throw error;
+    }
+}
 
 module.exports = {
     registerOrganizationController,
     organizationLoginController,
     getOrganizationsController,
-    updateOrganizationStatusController
+    updateOrganizationStatusController,
+    recoverOrganizationPasswordController,
+    recoverOrganizationPinController,
+    updateOrganizationProfileController
 };

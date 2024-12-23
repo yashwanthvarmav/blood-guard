@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const { Op } = require('sequelize');
 const models = require('../models');
+const { sendContactRequestCreationEmail, sendContactRequestUpdateEmail } = require('../helpers/mailservice');
 
 const createContactSchema = Joi.object({
   contact_name: Joi.string().required(),
@@ -11,8 +12,9 @@ const createContactSchema = Joi.object({
 });
 
 const updateContactSchema = Joi.object({
+    contact_email: Joi.string().email().required(),
     contact_status: Joi.string().valid('Pending', 'In Progress', 'Resolved', 'Closed').required(),
-    contact_remarks: Joi.string().optional(),
+    contact_remarks: Joi.string().required(),
 });
 
 async function createContact(req, res) {
@@ -28,6 +30,8 @@ async function createContact(req, res) {
       ...req.body,
       contact_status: 'Pending', // Default status
     });
+
+    await sendContactRequestCreationEmail(req.body);
 
     res.status(201).json({ message: 'Contact created successfully', newContact });
   } catch (err) {
@@ -81,7 +85,11 @@ async function updateContact(req, res) {
         return res.status(404).json({ error: 'Contact not found' });
       }
   
-      const updatedContact = await contact.update(req.body);
+      const updatedContact = await contact.update({...req.body, updated_at: new Date() });
+
+      const { contact_email, contact_status, contact_remarks } = req.body;
+      await sendContactRequestUpdateEmail(contact_email, contact_status, contact_remarks);
+
       res.status(200).json({ message: 'Contact updated successfully', updatedContact });
     } catch (err) {
       console.error('Error updating contact:', err.message);
@@ -89,4 +97,8 @@ async function updateContact(req, res) {
     }
 }
 
-module.exports = { createContact, getContacts, updateContact };
+module.exports = { 
+  createContact, 
+  getContacts, 
+  updateContact 
+};

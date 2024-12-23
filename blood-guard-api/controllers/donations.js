@@ -1,5 +1,7 @@
 const models = require('../models');
 const moment = require('moment');
+const { sendEligibilityEmail, sendDonationCompletionEmail } = require('../helpers/mailservice');
+
 
 // API-1: Get donations with filters
 async function getDonations(req, res) {
@@ -180,6 +182,13 @@ async function updateDonation(req, res) {
             where: { id: user_id } // Update based on the user_id
         }
       );
+
+      await sendDonationCompletionEmail(user_id);
+
+      const disqualification_reasons = ['question_three: Recent blood donation'];
+      const disqualification_end_date = tempEndDate;
+
+      await sendEligibilityEmail(user_id, eligibility, disqualification_reasons, disqualification_end_date);
     }
 
     res.status(200).json({
@@ -249,7 +258,6 @@ async function getBloodStock(req, res) {
     res.status(500).json({ error: 'An error occurred while fetching blood stock data.' });
   }
 }
-
 
 async function getDonationHistory(req, res) {
   try {

@@ -8,23 +8,22 @@ const {
   getBloodStock, 
   getDonationHistory
 } = require('../controllers/donations');
+const { validateToken } = require('../middlewares/auth');
 
-// API-1: Get donations with filters
+// Get donations with filters
 router.get('/list', getDonations);
 
-// API-2: Add a new donation record
-router.post('/add', addDonation);
+// Add a new donation record
+router.post('/add', validateToken, addDonation);
 
-// API-3: Update a donation record
-router.put('/update/:id', updateDonation);
+// Update a donation record
+router.put('/update/:id', validateToken, updateDonation);
 
-// API-4: Soft delete a donation record
-router.delete('/remove/:id', deleteDonation);
-
+// Soft delete a donation record
+router.delete('/remove/:id', validateToken, deleteDonation);
 
 router.get('/blood-stock', getBloodStock);
 
-
-router.get('/history/:user_id', getDonationHistory);
+router.get('/history/:user_id', validateToken, getDonationHistory);
 
 module.exports = router;

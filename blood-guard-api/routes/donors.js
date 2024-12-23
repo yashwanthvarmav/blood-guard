@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getEligibleDonorsController, requestBloodDonationController } = require('../controllers/donors');
 const Joi = require('joi');
+const { validateToken } = require('../middlewares/auth');
 
 // Joi validation schema for the request body
 const bloodRequestSchema = Joi.object({
@@ -23,7 +24,6 @@ const donorQuerySchema = Joi.object({
   offset: Joi.number().integer().min(0).default(0)
 });
 
-
 // Fetch Eligible Donors Route
 router.get('/list', async (req, res, next) => {
   try {
@@ -37,9 +37,8 @@ router.get('/list', async (req, res, next) => {
   }
 });
 
-
 // Request Blood Donation Route
-router.post('/request-blood', async (req, res, next) => {
+router.post('/request-blood', validateToken, async (req, res, next) => {
     try {
       const { error } = bloodRequestSchema.validate(req.body);
       if (error) {

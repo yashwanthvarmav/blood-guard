@@ -59,7 +59,6 @@ async function addDonationCamp(req, res) {
   res.status(201).json({ message: 'Donation camp added successfully', newCamp });
 }
 
-
 // List Blood Donation Camps
 async function listDonationCamps(req, res) {
   const { organization_id, camp_id, zipcode, city, state, camp_type, name, date, limit = 10, offset = 0 } = req.query;

@@ -27,7 +27,6 @@ const eligibilityRules = {
     question_twenty: { disqualification_type: 'Temporary', waiting_period_months: 1, condition: true, comment: 'Alcohol consumption within 24 hours' }
 };
 
-
 async function processEligibilityController(req, res) {
     const { user_id, answers } = req.body;
 
@@ -108,7 +107,6 @@ async function processEligibilityController(req, res) {
         res.status(500).json({ error: 'An error occurred while processing eligibility' });
     }
 }
-
 
 module.exports = {
     processEligibilityController

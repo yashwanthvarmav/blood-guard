@@ -30,7 +30,7 @@ const donationCenterSchema = Joi.object({
 });
 
 // Add Blood Donation Center
-router.post('/add', async (req, res, next) => {
+router.post('/add', validateToken, async (req, res, next) => {
   try {
     const { error } = donationCenterSchema.validate(req.body);
     if (error) {
@@ -52,7 +52,7 @@ router.get('/list', async (req, res, next) => {
 });
 
 // Update Blood Donation Center
-router.put('/update/:id', async (req, res, next) => {
+router.put('/update/:id', validateToken, async (req, res, next) => {
   try {
     await updateDonationCenter(req, res);
   } catch (err) {
@@ -61,7 +61,7 @@ router.put('/update/:id', async (req, res, next) => {
 });
 
 // Remove Blood Donation Center
-router.delete('/remove/:id', async (req, res, next) => {
+router.delete('/remove/:id', validateToken, async (req, res, next) => {
   try {
     await removeDonationCenter(req, res);
   } catch (err) {
