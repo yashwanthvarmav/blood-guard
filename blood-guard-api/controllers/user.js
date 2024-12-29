@@ -218,10 +218,48 @@ async function updateUserProfileController(userId, updates) {
     }
 }
 
+// Controller to get list of users
+const getUserList = async (req, res) => {
+  try {
+    const { id, email, offset = 0, limit = 10 } = req.query;
+
+    // Validation
+    if (offset < 0 || limit <= 0) {
+      return res.status(400).json({ error: 'Offset and limit must be positive integers' });
+    }
+
+    // Query filters
+    const filters = {};
+    if (id) filters.id = id;
+    if (email) filters.email = email;
+
+    // Fetch users with filters and pagination
+    const { count, rows } = await models.User.findAndCountAll({
+      where: filters,
+      offset: parseInt(offset, 10),
+      limit: parseInt(limit, 10),
+      attributes: { exclude: ['password'] }, // Exclude sensitive fields
+    });
+
+    res.status(200).json({
+      total: count,
+      users: rows,
+      pagination: {
+        offset: parseInt(offset, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the user list' });
+  }
+};
+
 module.exports = {
     registerUserController,
     userLoginController,
     recoverPasswordController,
     recoverPinController,
-    updateUserProfileController
+    updateUserProfileController,
+    getUserList
 };

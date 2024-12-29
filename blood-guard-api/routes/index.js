@@ -14,6 +14,7 @@ const { createContact, getContacts, updateContact } = require('../controllers/co
 const { createSupport, listSupport, updateSupport } = require('../controllers/support');
 const { validateToken } = require('../middlewares/auth');
 const corporateRoutes = require('./corporate');
+const { getUserList } = require ('../controllers/user');
 
 // User routes
 router.post('/register-user', registerUserRoute);
@@ -21,6 +22,7 @@ router.post('/login-user', loginUserRoute);
 router.put('/recover-password-user', recoverPasswordRoute);
 router.put('/recover-pin-user', recoverPinRoute);
 router.put('/update-profile-user', validateToken, updateUserProfileRoute);
+router.get('/users/list', getUserList);
 
 // Organization routes
 router.post('/register-organization', registerOrganizationRoute);
