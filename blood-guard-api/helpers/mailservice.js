@@ -450,6 +450,7 @@ async function sendCorporateCreatedEmail(corporate, organization) {
         <p style="font-size: 16px; margin-bottom: 20px;">A new camp request has been submitted with the following details:</p>
         <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
             <ul style="list-style-type: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 10px;"><strong>Camp Request ID:</strong> ${corporate.corporate_id}</li>
                 <li style="margin-bottom: 10px;"><strong>Company Name:</strong> ${corporate.corporate_company_name}</li>
                 <li style="margin-bottom: 10px;"><strong>Branch:</strong> ${corporate.corporate_company_branch}</li>
                 <li style="margin-bottom: 10px;"><strong>Camp Name:</strong> ${corporate.corporate_camp_name}</li>
@@ -629,6 +630,7 @@ async function sendSupportRequestCreationEmail(support) {
             </p>
             <div style="text-align: left; margin: 0 auto; max-width: 500px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                 <h3 style="margin-bottom: 10px;">Request Details:</h3>
+                <p><strong>Ticket ID:</strong> ${support.support_id}</p>
                 <p><strong>Name:</strong> ${support.support_name}</p>
                 <p><strong>Email:</strong> ${support.support_email}</p>
                 <p><strong>Phone:</strong> ${support.support_phone_number}</p>
