@@ -1034,6 +1034,170 @@ function App() {
         if (params.userInput === "Check Ticket Status") return "check_ticket_email";
       },
     },
+    support_helpdesk: {
+      message: "What do you need help with?",
+      options: ["Create Ticket", "Check Ticket Status"],
+      chatDisabled: true,
+      path: (params) => {
+        if (params.userInput === "Create Ticket") return "support_create_ticket";
+        if (params.userInput === "Check Ticket Status") return "check_ticket_email";
+      },
+    },
+    support_helpdesk: {
+      message: "What do you need help with?",
+      options: ["Create Ticket", "Check Ticket Status"],
+      chatDisabled: true,
+      path: (params) => {
+        if (params.userInput === "Create Ticket") return "support_create_ticket";
+        if (params.userInput === "Check Ticket Status") return "check_ticket_email";
+      },
+    },
+    support_create_ticket: {
+      message: "Let's create a support ticket. What is your name?",
+      function: (params) => setForm((prevForm) => ({ ...prevForm, support_name: params.userInput })),
+      path: "support_ticket_email",
+    },
+    support_ticket_email: {
+      message: "What is your email address?",
+      validateInput: (input) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(input)) {
+          return {
+            success: false,
+            promptContent: "Please enter a valid email address!",
+            promptType: "error", // Ensures clear error type handling
+          };
+        }
+        return { success: true };
+      },
+      function: (params) => {
+        setForm((prevForm) => ({ ...prevForm, support_email: params.userInput }));
+      },
+      path: (params) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(params.userInput)) {
+          return "support_ticket_email"; // Redirect to the same step on invalid input
+        }
+        return "support_ticket_phone";
+      },
+    },    
+    support_ticket_phone: {
+      message: "What is your phone number?",
+      function: (params) => setForm((prevForm) => ({ ...prevForm, support_phone_number: params.userInput })),
+      path: "support_ticket_type",
+    },
+    support_ticket_type: {
+      message: "Are you a Donor or Organization?",
+      options: ["Donor", "Organization"],
+      chatDisabled: true,
+      function: (params) => setForm((prevForm) => ({ ...prevForm, support_type: params.userInput })),
+      path: "support_ticket_subject",
+    },
+    support_ticket_subject: {
+      message: "What is the subject of your request?",
+      function: (params) => setForm((prevForm) => ({ ...prevForm, support_subject: params.userInput })),
+      path: "support_ticket_message",
+    },
+    support_ticket_message: {
+      message: "Please describe your issue or request.",
+      function: (params) => setForm((prevForm) => ({ ...prevForm, support_message: params.userInput })),
+      path: "support_submission",
+    },
+    support_submission: {
+      message: async () => {
+        try {
+          const response = await fetch("http://localhost:3001/api/support/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(form),
+          });
+  
+          if (!response.ok) {
+            const errorData = await response.json();
+            return `Error: ${errorData.error}. Please try again.`;
+          }
+  
+          const { support } = await response.json();
+          return `
+            Support ticket created successfully!
+            - Ticket ID: ${support.support_id}
+            - Name: ${support.support_name}
+            - Email: ${support.support_email}
+          `;
+        } catch (err) {
+          return `An error occurred while submitting your ticket. Please try again.`;
+        }
+      },
+      options: ["Back to Start"],
+      chatDisabled: true,
+      path: "start",
+    },
+    check_ticket_email: {
+      message: "What is your email address used to register Ticket?",
+      validateInput: (input) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(input)) {
+          return {
+            success: false,
+            promptContent: "Please enter a valid email address!",
+            promptType: "error", // Ensure this matches your framework's expected error type
+          };
+        }
+        return { success: true };
+      },
+      function: (params) => {
+        setForm((prevForm) => ({ ...prevForm, support_email: params.userInput }));
+      },
+      path: (params) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(params.userInput)) {
+          return "check_ticket_email"; // Retry the same step if validation fails
+        }
+        return "check_ticket_status";
+      },
+    },    
+    check_ticket_status: {
+      message: "Please enter your Ticket ID. If you don’t remember it, you can find it in the email you used to raise the ticket.",
+      validateInput: (input) => {
+        return !isNaN(input)
+          ? { success: true }
+          : { success: false, promptContent: "Ticket ID must be a number!", promptType: "error" };
+      },
+      function: (params) => setForm((prevForm) => ({ ...prevForm, support_id: params.userInput })),
+      path: "ticket_status_response",
+    },
+    ticket_status_response: {
+      message: async () => {
+        try {
+          const response = await fetch(`http://localhost:3001/api/support/list?support_id=${form.support_id}&support_email=${form.support_email}`);
+  
+          if (!response.ok) {
+            return "Unable to fetch ticket status. Please ensure the Ticket ID is correct.";
+          }
+  
+          const data = await response.json();
+          if (data.total === 0) {
+            return "No ticket found with the provided ID and email.";
+          }
+  
+          const ticket = data.supports[0];
+          return `
+            BloodGuard Support Ticket Details:
+            - Ticket ID : ${ticket.support_id}
+            - Name: ${ticket.support_name}
+            - Email: ${ticket.support_email}
+            - Subject: ${ticket.support_subject}
+            - Status: ${ticket.support_status}
+            - Remarks: ${ticket.support_remarks || "No remarks"}
+          `;
+        } catch (err) {
+          return `An error occurred while fetching the ticket status. Please try again.`;
+        }
+      },
+      options: ["Back to Start"],
+      chatDisabled: true,
+      path: "start",
+    },
     corporate_check_status_email: {
       message: "Please enter your corporate email.",
       validateInput: (input) => {
