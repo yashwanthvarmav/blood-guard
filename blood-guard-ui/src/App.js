@@ -1243,6 +1243,8 @@ function App() {
             - SPOC Name: ${camp.corporate_spoc_name}
             - Phone Number: ${camp.corporate_phone_number}
             - Email: ${camp.corporate_email}
+            - Camp Status: ${camp.support_status}
+            - Camp request Remarks: ${camp.support_remarks}
           `;
         } catch (err) {
           return "An error occurred while fetching the camp status. Please try again.";
