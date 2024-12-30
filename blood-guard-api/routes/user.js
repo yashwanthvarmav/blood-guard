@@ -23,7 +23,7 @@ const registerSchema = Joi.object({
     work_country: Joi.string().required(),
     work_zip_code: Joi.string().optional(),
     user_pin: Joi.number().integer().optional(),
-    role: Joi.string(),
+    role: Joi.string().valid('DONOR').required(),
     password: Joi.string().min(8).required(),
     user_account_status: Joi.string().required(),
     user_notifications: Joi.string().required()
