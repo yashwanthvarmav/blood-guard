@@ -18,7 +18,7 @@ const organizationSchema = Joi.object({
     organization_zip_code: Joi.string().required(),
     organization_pin: Joi.number().integer().optional(),
     password: Joi.string().min(8).required(),
-    role: Joi.string(),
+    role: Joi.string().valid('ORGANIZATION').required(),
     organization_type:Joi.string().required(),
     organization_account_status: Joi.string().required(),
     organization_account_remarks: Joi.string().optional()
