@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Outfit", sans-serif;
+}
+.active hr {
+  @apply block;
+}
+
+::-webkit-scrollbar {
+  @apply hidden;
+}
+
+/* input {
+  @apply focus:ring-2 focus:ring-red-600 focus:outline-none;
+} */
+
+input {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+input[type="date"] {
+  padding: 10px; /* Adjust as needed */
+  /* border: 1px solid #e5e7eb; */
+}
+
+select {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.toggle .notifications {
+  display: none !important;
+}
+
+#chatbot-footer-container span {
+  display: none !important;
+}
+
+.react-chatbot-kit-chat-toggle-button {
+  background-color: #e63946; /* Blood red color */
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Replace the default toggle icon */
+.react-chatbot-kit-chat-toggle-button::before {
+  content: "🩸"; /* Blood drop emoji */
+  font-size: 24px;
+  color: #fff;
+}
+
+/* Customize the toggle button */
+.react-chatbot-kit-chat-toggle-button {
+  background-color: #e63946; /* Blood red */
+  border: none;
+  border-radius: 50%; /* Circular button */
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Change the icon inside the toggle button */
+.react-chatbot-kit-chat-toggle-button::before {
+  content: "🩸"; /* Blood drop emoji */
+  font-size: 24px;
+  color: #fff; /* Icon color */
+}
+
+/* Hover effect for the button */
+.react-chatbot-kit-chat-toggle-button:hover {
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.loader-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; 
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  z-index: 9999; 
+}
+
+.ant-modal-title {
+  font-weight: 700 !important;
+  color: #d03434 !important; /* Change to your desired color */
+}
