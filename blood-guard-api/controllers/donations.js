@@ -51,6 +51,10 @@ async function getDonations(req, res) {
       where: whereCondition,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      include: [
+        { model: models.User, attributes: ['first_name', 'last_name', 'primary_phone_number', 'email'] },
+      ],
+
     });
 
     res.status(200).json({
