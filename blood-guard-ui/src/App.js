@@ -37,6 +37,7 @@ import SupportRequests from "./pages/admin/SupportRequests";
 import CorprorateRequests from "./pages/admin/CorprateRequests";
 import Users from "./pages/admin/Users";
 import OrgList from "./pages/admin/OrgList";
+import OraganizationCSRRequests from "./pages/organization/OrganizationCSRRequests";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -1495,6 +1496,15 @@ function App() {
             element={
               <PrivateRoute>
                 <OrganizationCamps type="ORGANIZATION" />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/organization-dashboard/csr-camp-requests"
+            exact
+            element={
+              <PrivateRoute>
+                <OraganizationCSRRequests type="ORGANIZATION" />
               </PrivateRoute>
             }
           />
