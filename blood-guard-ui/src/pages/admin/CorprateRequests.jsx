@@ -1,35 +1,11 @@
 import React, { useEffect, useState } from "react";
-import Modal from "../../components/DonateQuestions";
-import { getCorporateRequests, updateCorprateRequest } from "../../context/apis";
-import { toast } from "react-toastify";
-import { useAuth } from "../../context/AuthContext";
-import { EditOutlined } from '@ant-design/icons';
-import { Select } from "antd";
-
+import { getCorporateRequests } from "../../context/apis";
 
 const CorprorateRequests = ({ type }) => {
-  const users = [
-    {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      contact: "1234567890",
-      place: "New York",
-      blood_group: "A+",
-    },
 
-  ];
-  const { profileDate } = useAuth();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
-  const [deleteModal, setDeleteModal] = useState(false);
   const [donorsList, setDonorsList] = useState([]);
-  const [activeUser, setActiveUser] = useState(null);
-    const [remarks,setRemarks]=useState("");
-      const [selectedOption, setSelectedOption] = useState(null);
-      const handleChangeEdit = (selectedOption) => {
-          setSelectedOption(selectedOption);
-          console.log("Selected option:", selectedOption);
-        };
 
   // Filtered Users
   const filteredUsers = donorsList?.length
@@ -43,9 +19,6 @@ const CorprorateRequests = ({ type }) => {
       })
     : [];
 
-  // Unique places for filtering
-  const uniquePlaces = Array.from(new Set(users.map((user) => user.place)));
-
   const getDonorsList = async () => {
     try {
       const response = await getCorporateRequests();
@@ -55,51 +28,6 @@ const CorprorateRequests = ({ type }) => {
     }
   };
 
-
-
-  const updateSupport = async (id) => {
-      try {
-  
-        const response = await updateCorprateRequest(activeUser?.corporate_id, {   
-        //   support_email : activeUser?.support_email, 
-          support_status:  selectedOption, 
-          support_remarks: remarks
-      });
-        toast.success(response?.message);
-        setRemarks("");
-        setSelectedOption();
-        setActiveUser(null)
-        getDonorsList();
-        setDeleteModal(false)
-        //   setBloodCamps(response);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-  
-    const customStyles = {
-      control: (provided) => ({
-        ...provided,
-        padding: "3px", // Add padding to the dropdown container
-        borderRadius: "8px",
-        borderColor: "#e2e8f0",
-        "&:hover": { borderColor: "#cbd5e0" },
-      }),
-      input: (provided) => ({
-        ...provided,
-        padding: "5px", // Padding inside the input field
-      }),
-      menu: (provided) => ({
-        ...provided,
-        padding: "5px", // Padding inside the dropdown menu
-      }),
-      option: (provided, state) => ({
-        ...provided,
-        padding: "10px", // Padding for each option
-        backgroundColor: state.isFocused ? "#edf2f7" : "#fff",
-        color: "#000",
-      }),
-    };
   useEffect(() => {
     getDonorsList();
   }, []);
@@ -170,10 +98,6 @@ const CorprorateRequests = ({ type }) => {
               <th className="border border-gray-300 px-4 py-2 text-left">
                 Organization Email
               </th>
-              <th className="border border-gray-300 px-4 py-2 text-left">
-                Action
-              </th>
-          
             </tr>
           </thead>
           {filteredUsers?.length ? (
@@ -228,17 +152,7 @@ const CorprorateRequests = ({ type }) => {
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                   {user?.Organization?.organization_email}
-
                   </td>
-                 <td className="border border-gray-300 px-4 py-2">
-           
-                             <button
-                       className="px-4 py-2  text-white bg-red-600 rounded-lg hover:bg-red-700"
-                       onClick={() => {setDeleteModal(true);setActiveUser(user)}}
-                     >
-                      <EditOutlined/> Edit
-                     </button></td>
-               
                 </tr>
               ))}
             </tbody>
@@ -252,85 +166,7 @@ const CorprorateRequests = ({ type }) => {
             </>
           )}
         </table>
-      </div>
-
-      {deleteModal && (
-        <Modal
-          isOpen={deleteModal}
-          onClose={() => setDeleteModal(false)}
-          width="40%"
-        >
-          <div className="flex justify-between min-w-[40%]">
-            <h2 className="text-2xl font-bold text-primary">
-             Update status
-            </h2>
-            <button
-              className=" text-gray-600 hover:text-gray-900"
-              onClick={() => {
-                setActiveUser(null);
-                setDeleteModal(false);
-              }}
-            >
-              ✕
-            </button>
-          </div>
-          <div className="  p-6 bg-gray-50 rounded-lg shadow-lg mt-10 ">
-          <div className="bg-white p-6 rounded-md shadow-md input-wrapper">
-            <div>
-             
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
-                <div className="w-full">
-                  <label className="font-medium text-sm">Status</label>
-                  <Select
-                    options={['Pending', 'Approved', 'Rejected']?.map((item) => ({
-                      label: item,
-                      value: item,
-                    }))}
-                    value={selectedOption}
-                    onChange={handleChangeEdit}
-                    isSearchable
-                    placeholder="Select a status"
-                    className="w-full h-10 max-w-md"
-                    styles={customStyles}
-                  />
-                </div>
-                <div className="w-full">   
-                  <label>Remarks</label> 
-                   <input
-                      type="text"
-                      placeholder="Remarks"
-                      name="remarks"
-                      onChange={(e)=>{setRemarks(e.target.value)}}
-                      value={remarks||''}
-
-                      className="input-field p-3 h-10 w-full"
-                    /></div>
-            
-           
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end mt-8">
-            <button
-              onClick={() => {
-                setDeleteModal(false);
-              }}
-              className={`px-6 py-2 rounded-lg ${"bg-gray-300 text-gray-600"}`}
-            >
-              Close
-            </button>
-            <button
-              onClick={updateSupport}
-              className={`px-6 py-2 ml-2 rounded-lg ${"bg-primary text-white"}`}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-        </Modal>
-      )}
-
-   
+      </div>   
     </div>
   );
 };
