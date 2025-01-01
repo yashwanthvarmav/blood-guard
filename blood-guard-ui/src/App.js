@@ -1007,19 +1007,19 @@ function App() {
       path: "faq_troubleshooting",
     },
     donor_eligibility_check: {
-      message: `Please visit the Eligibility Checker under your Donor Dashboard for detailed eligibility verification. <a href="http://localhost:3000/donor-eligibility" target="_blank">Check Eligibility</a>`,
+      message: `Please visit the Eligibility Checker under your Donor Dashboard for detailed eligibility verification. Check Eligibility - http://localhost:3000/login .`,
       options: ["Back to Donor Options"],
       chatDisabled: true,
       path: "donor_help",
     },
     donor_find_centers: {
-      message: `To find nearby donation centers, visit the Donation Centers section. <a href="http://localhost:3000/donor-centers" target="_blank">Find Centers</a>`,
+      message: `To find nearby donation centers, visit the Donation Centers section. Find Centers - http://localhost:3000/centers .`,
       options: ["Back to Donor Options"],
       chatDisabled: true,
       path: "donor_help",
     },
     donor_find_camps: {
-      message: `For upcoming donation camps, check the Donation Camps section. <a href="http://localhost:3000/donor-camps" target="_blank">Find Camps</a>`,
+      message: `For upcoming donation camps, check the Donation Camps section. Find Camps - http://localhost:3000/camps . `,
       options: ["Back to Donor Options"],
       chatDisabled: true,
       path: "donor_help",
