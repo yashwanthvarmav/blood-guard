@@ -75,26 +75,6 @@ const SideBar = () => {
           >
             <p className="py-1">Eligible Donors List</p>
           </NavLink>
-          {/* <NavLink
-            to="/organization-dashboard/history"
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9  cursor-pointer ${
-                isActive ? "bg-red-100 border-r-4 border-primary" : ""
-              }`
-            }
-          >
-            <p className="py-1">Blood Requests</p>
-          </NavLink>
-          <NavLink
-            to="/organization-dashboard/historyk"
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9  cursor-pointer ${
-                isActive ? "bg-red-100 border-r-4 border-primary" : ""
-              }`
-            }
-          >
-            <p className="py-1">Requests History</p>
-          </NavLink> */}
           <NavLink
             to="/organization-dashboard/centers"
             className={({ isActive }) =>
@@ -115,20 +95,20 @@ const SideBar = () => {
           >
             <p className="py-1">Donation Camps</p>
           </NavLink>
-        </>
-      )}
-      {isAuthenticated && profileDate?.admin?.role === "ADMIN" && (
-        <>
-          {/* <NavLink
-            to="/admin-dashboard/dashboard"
+          <NavLink
+            to="/organization-dashboard/csr-camp-requests"
             className={({ isActive }) =>
               `flex items-center gap-3 py-3.5 px-3 md:px-9  cursor-pointer ${
                 isActive ? "bg-red-100 border-r-4 border-primary" : ""
               }`
             }
           >
-            <p className="py-1">Dashboard</p>
-          </NavLink> */}
+            <p className="py-1">CSR Camp Requests</p>
+          </NavLink>
+        </>
+      )}
+      {isAuthenticated && profileDate?.admin?.role === "ADMIN" && (
+        <>
           <NavLink
             to="/admin-dashboard/organizations"
             className={({ isActive }) =>
@@ -179,27 +159,8 @@ const SideBar = () => {
           >
             <p className="py-1">Eligible Donors List</p>
           </NavLink>
-          {/* <NavLink
-            to="/organization-dashboard/history"
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9  cursor-pointer ${
-                isActive ? "bg-red-100 border-r-4 border-primary" : ""
-              }`
-            }
-          >
-            <p className="py-1">Blood Requests</p>
-          </NavLink>
+
           <NavLink
-            to="/organization-dashboard/historyk"
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9  cursor-pointer ${
-                isActive ? "bg-red-100 border-r-4 border-primary" : ""
-              }`
-            }
-          >
-            <p className="py-1">Requests History</p>
-          </NavLink> */}
-                 <NavLink
             to="/admin-dashboard/users"
             className={({ isActive }) =>
               `flex items-center gap-3 py-3.5 px-3 md:px-9  cursor-pointer ${
