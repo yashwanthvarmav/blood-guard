@@ -181,7 +181,7 @@ const CsrImpact = () => {
                                     width: "100%",
                                     height: 45,
                                   }}
-                                  placeholder="Select role"
+                                  placeholder="Select Organization"
                                   optionFilterProp="label"
                                   onChange={(value) => {
                                     console.log("value->", value);
@@ -223,12 +223,12 @@ const CsrImpact = () => {
              
                   <div className="flex flex-col">
                     <label className="font-medium text-sm">
-                      Company Name
+                      Camp Name
                     </label>
                     <input
                       type="text"
                       name="corporate_camp_name"
-                      placeholder="Company Name"
+                      placeholder="Camp Name"
                       onChange={handleChange}
                       value={formData?.corporate_camp_name}
                       className="input-field p-3 w-full"
@@ -361,7 +361,7 @@ const CsrImpact = () => {
 
              
              
-                </div>
+            </div>
             </div>
           </Modal>
         </>
