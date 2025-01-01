@@ -32,7 +32,7 @@ async function sendWelcomeEmail(email, pin) {
             
             <a href="https://bloodguard-app.com/login" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #d32f2f; color: #fff; text-decoration: none; font-size: 16px; border-radius: 5px;">Log in to Your Account</a>
             
-            <p style="margin-top: 20px; font-size: 14px; color: #777;">If you have any questions, feel free to reach out to our support team at <a href="mailto:support@bloodguard-app.com" style="color: #d32f2f; text-decoration: none;">support@bloodguard-app.com</a>.</p>
+            <p style="margin-top: 20px; font-size: 14px; color: #777;">If you have any questions, feel free to reach out to our support team at <a href="mailto:bloodguardinfo@gmail.com" style="color: #d32f2f; text-decoration: none;">bloodguardinfo@gmail.com</a>.</p>
             
             <p style="font-size: 14px; color: #999; margin-top: 20px;">Thank you for being a part of our mission. Together, we can save lives!</p>
         </div>
