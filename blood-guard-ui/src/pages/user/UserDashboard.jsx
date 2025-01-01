@@ -56,10 +56,9 @@ const UserDashboard = () => {
 
   const disabled = isPermanentlyDisqualified || isDateNotOver;
 
-  const pendingRequests=bloodCamps?.history?.length ? bloodCamps?.history?.filter(item=>item?.blood_donation_status==='Pending')?.length:0;
-  const completedRequests=bloodCamps?.history?.length ? bloodCamps?.history?.filter(item=>item?.blood_donation_status==='Completed')?.length:0;
-  const rejectedRequests=bloodCamps?.history?.length ? bloodCamps?.history?.filter(item=>item?.blood_donation_status==='Cancelled')?.length:0;
-
+  const pendingRequests=bloodCenters?.history?.length ? bloodCenters?.history?.filter(item=>item?.blood_donation_status==='Pending')?.length:0;
+  const completedRequests=bloodCenters?.history?.length ? bloodCenters?.history?.filter(item=>item?.blood_donation_status==='Completed')?.length:0;
+  const rejectedRequests=bloodCenters?.history?.length ? bloodCenters?.history?.filter(item=>item?.blood_donation_status==='Cancelled')?.length:0;
 
   return (
     <div className="h-screen">
@@ -187,7 +186,7 @@ const UserDashboard = () => {
 
 
           <div
-              key={"Pending Requests"}
+              key={"Pending Donations"}
               className={`p-6 rounded-lg shadow-md flex flex-col items-center justify-center bg-[#FFF7ED]`}
             >
               <div className="text-4xl mb-4"><AiOutlineClockCircle style={{ color: "#FFA500" }} /></div>
